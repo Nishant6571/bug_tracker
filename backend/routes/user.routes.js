@@ -4,7 +4,9 @@ const jwt = require("jsonwebtoken");
 const { UserModel } = require("../models/UserModel");
 const { BugModel } = require("../models/bugModel");
 const { auth } = require("../middlewares/auth.middleware");
-
+const { blacklist } = require("../models/blacklist");
+const multer = require("multer");
+const cloudinary = require("cloudinary").v2;
 const userRouter = express.Router();
 
 userRouter.get("/", async (req, res) => {
@@ -16,27 +18,57 @@ userRouter.get("/", async (req, res) => {
   }
 });
 
-// register route
-userRouter.post("/register", async (req, res) => {
-  const { name, avatar, email, password, created_at } = req.body;
+// Multer configuration
+const storage = multer.diskStorage({});
+const upload = multer({ storage });
+
+// Cloudinary configuration
+// import { v2 as cloudinary } from "cloudinary";
+
+cloudinary.config({
+  cloud_name: "dohtcnach",
+  api_key: "418911731458339",
+  api_secret: "FuZeKsQokklRnClGkafu2dyftO0",
+});
+
+// Route to handle user registration with file upload
+userRouter.post("/register", upload.single("avatar"), async (req, res) => {
+  const { name, email, password } = req.body;
+  const created_at = new Date();
+
   try {
     const user = await UserModel.findOne({ email });
+
     if (user) {
-      return res.status(409).send({ msg: "User Already Registered." });
+      return res.status(409).send({ msg: "User already registered." });
     }
-    bcrypt.hash(password, 6, async (err, hash) => {
+
+    let avatarUrl = "";
+
+    if (req.file) {
+      // Upload avatar to Cloudinary
+      const result = await cloudinary.uploader.upload(req.file.path);
+      avatarUrl = result.secure_url;
+    }
+
+    bcrypt.hash(password, 10, async (err, hash) => {
+      if (err) {
+        return res.status(500).send({ Error: err.message });
+      }
+
       const newUser = new UserModel({
         name,
-        avatar,
         email,
         password: hash,
+        avatar: avatarUrl,
         created_at,
       });
+
       await newUser.save();
+      res.status(200).send({ msg: "New user registered successfully." });
     });
-    res.status(200).send({ msg: "New User Registered Successfully." });
   } catch (error) {
-    res.status(500).send({ Error: error });
+    res.status(500).send({ Error: error.message });
   }
 });
 
@@ -53,7 +85,10 @@ userRouter.post("/login", async (req, res) => {
           const token = jwt.sign({ userID: user._id }, "nishant", {
             expiresIn: "1d",
           });
-          res.status(200).send({ msg: "User Logged in Successfully.", token });
+
+          res
+            .status(200)
+            .send({ msg: "User Logged in Successfully.", token, user });
         }
       });
     }
@@ -61,6 +96,14 @@ userRouter.post("/login", async (req, res) => {
     res.status(500).send({ Error: error });
   }
 });
+// logout
+userRouter.get("/logout", (req, res) => {
+  const token = req.headers.authorization?.split(" ")[1];
+  blacklist.push(token);
+  res.status(200).send({ msg: "Logout successsful" });
+});
+
+module.exports = { userRouter };
 
 // get all bugs for the user
 userRouter.get("/bugs", auth, async (req, res) => {
