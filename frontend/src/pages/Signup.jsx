@@ -38,7 +38,7 @@ const Signup = () => {
 
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/register",
+        "https://bug-tracker-umcg.onrender.com/api/register",
         formData,
         {
           headers: {

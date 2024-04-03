@@ -29,11 +29,14 @@ const Tracker = () => {
     const fetchBugs = async () => {
       const token = localStorage.getItem("token");
       try {
-        const response = await axios.get("http://localhost:3000/api/bugs", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
+        const response = await axios.get(
+          "https://bug-tracker-umcg.onrender.com/api/bugs",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
         dispatch(setbugdata(response.data.bugs));
         console.log(response.data);
         setnewugsData(response.data);
@@ -66,7 +69,7 @@ const Tracker = () => {
     const token = localStorage.getItem("token");
     try {
       const response = await axios.post(
-        "http://localhost:3000/api/bugs",
+        "https://bug-tracker-umcg.onrender.com/api/bugs",
         {
           title,
           description,

@@ -22,7 +22,7 @@ const Bugscard = ({ bug }) => {
     const token = localStorage.getItem("token");
     try {
       const response = await axios.delete(
-        `http://localhost:3000/api/bugs/${bug._id}`,
+        `https://bug-tracker-umcg.onrender.com/api/bugs/${bug._id}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -39,7 +39,7 @@ const Bugscard = ({ bug }) => {
     const token = localStorage.getItem("token");
     try {
       const response = await axios.patch(
-        `http://localhost:3000/api/bugs/${bug._id}`,
+        `https://bug-tracker-umcg.onrender.com/api/bugs/${bug._id}`,
         {
           title: editedTitle,
           description: editedDescription,
