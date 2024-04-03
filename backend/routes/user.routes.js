@@ -18,7 +18,7 @@ userRouter.get("/", async (req, res) => {
   }
 });
 
-// Multer configuration
+// Multer configurationb
 const storage = multer.diskStorage({});
 const upload = multer({ storage });
 
