@@ -45,7 +45,7 @@ const Tracker = () => {
       }
     };
     fetchBugs();
-  }, []);
+  }, [bugsdata]);
 
   useEffect(() => {
     const filterBugs = () => {
