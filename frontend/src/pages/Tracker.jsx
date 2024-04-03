@@ -4,8 +4,8 @@ import {
   Button,
   FormControl,
   FormLabel,
+  Heading,
   Input,
-  Stack,
   Select,
 } from "@chakra-ui/react";
 import axios from "axios";
@@ -18,9 +18,13 @@ const Tracker = () => {
   const [description, setDescription] = useState("");
   const [source, setSource] = useState("");
   const [severity, setSeverity] = useState("");
+  const [filteredCritical, setFilteredCritical] = useState([]);
+  const [filteredMajor, setFilteredMajor] = useState([]);
+  const [filteredMedium, setFilteredMedium] = useState([]);
+  const [filteredLow, setFilteredLow] = useState([]);
   const dispatch = useDispatch();
   const bugsdata = useSelector((state) => state.auth.bugsdata);
-  console.log("//////", bugsdata);
+  const [newbugsdata, setnewugsData] = useState([]);
   useEffect(() => {
     const fetchBugs = async () => {
       const token = localStorage.getItem("token");
@@ -31,13 +35,32 @@ const Tracker = () => {
           },
         });
         dispatch(setbugdata(response.data.bugs));
-        console.log(response.data); // Logging the fetched bugs data
+        console.log(response.data);
+        setnewugsData(response.data);
       } catch (error) {
         console.error("Error fetching bugs:", error);
       }
     };
     fetchBugs();
   }, []);
+
+  useEffect(() => {
+    const filterBugs = () => {
+      const critical = bugsdata.filter((bug) => bug.severity === "Critical");
+      setFilteredCritical(critical);
+
+      const major = bugsdata.filter((bug) => bug.severity === "Major");
+      setFilteredMajor(major);
+
+      const medium = bugsdata.filter((bug) => bug.severity === "Medium");
+      setFilteredMedium(medium);
+
+      const low = bugsdata.filter((bug) => bug.severity === "Low");
+      setFilteredLow(low);
+    };
+
+    filterBugs();
+  }, [bugsdata]);
 
   const postBug = async () => {
     const token = localStorage.getItem("token");
@@ -57,6 +80,10 @@ const Tracker = () => {
         }
       );
       console.log("New bug added:", response.data);
+      setTitle("");
+      setDescription("");
+      setSource("");
+      setSeverity("");
     } catch (error) {
       console.error("Error adding bug:", error);
     }
@@ -158,48 +185,125 @@ const Tracker = () => {
           justifyContent: "space-between",
           padding: "20px",
           backgroundColor: "#f0f0f0",
+          gap: "10px",
         }}
       >
         <Box
           style={{
             width: "25%",
             padding: "10px",
-            backgroundColor: "#fff",
+            backgroundColor: "#f81f1f",
             border: "1px solid #ccc",
             boxSizing: "border-box",
+            borderRadius: "10px",
           }}
         >
-          {bugsdata.map((bug) => {
-            <Bugscard ele={bug} />;
-          })}
+          <h1 style={{ textAlign: "center", fontWeight: "600" }}>
+            Critical Bugs
+          </h1>
+          {filteredCritical.map((bug) => (
+            <Box
+              style={{
+                borderRadius: "10px",
+                backgroundColor: "#f65252",
+                gap: "10px",
+                width: "100%",
+                padding: "10px",
+                border: "1px solid #ccc",
+                boxSizing: "border-box",
+                marginTop: "10px",
+              }}
+            >
+              <Bugscard key={bug.id} bug={bug} />
+            </Box>
+          ))}
         </Box>
         <Box
           style={{
             width: "25%",
             padding: "10px",
-            backgroundColor: "#fff",
+            backgroundColor: "#f99c00",
             border: "1px solid #ccc",
             boxSizing: "border-box",
+            borderRadius: "10px",
           }}
-        ></Box>
+        >
+          <h1 style={{ textAlign: "center", fontWeight: "600" }}>Major Bugs</h1>
+          {filteredMajor.map((bug) => (
+            <Box
+              style={{
+                marginTop: "10px",
+                borderRadius: "10px",
+                backgroundColor: "#ffba46",
+                gap: "10px",
+                width: "100%",
+                padding: "10px",
+                border: "1px solid #ccc",
+                boxSizing: "border-box",
+              }}
+            >
+              <Bugscard key={bug.id} bug={bug} />
+            </Box>
+          ))}
+        </Box>
         <Box
           style={{
             width: "25%",
             padding: "10px",
-            backgroundColor: "#fff",
+            backgroundColor: "#67c4c8",
             border: "1px solid #ccc",
             boxSizing: "border-box",
+            borderRadius: "10px",
           }}
-        ></Box>
+        >
+          <h1 style={{ textAlign: "center", fontWeight: "600" }}>
+            Medium Bugs
+          </h1>
+          {filteredMedium.map((bug) => (
+            <Box
+              style={{
+                marginTop: "10px",
+                borderRadius: "10px",
+                backgroundColor: "#c8fdff",
+                gap: "10px",
+                width: "100%",
+                padding: "10px",
+                border: "1px solid #ccc",
+                boxSizing: "border-box",
+              }}
+            >
+              <Bugscard key={bug.id} bug={bug} />
+            </Box>
+          ))}
+        </Box>
         <Box
           style={{
             width: "25%",
             padding: "10px",
-            backgroundColor: "#fff",
-            border: "1px solid #ccc",
+            backgroundColor: "#2ee32e",
             boxSizing: "border-box",
+            borderRadius: "10px",
           }}
-        ></Box>
+        >
+          {" "}
+          <h1 style={{ textAlign: "center", fontWeight: "600" }}>Low Bugs</h1>
+          {filteredLow.map((bug) => (
+            <Box
+              style={{
+                borderRadius: "10px",
+                backgroundColor: "#9dfd9d",
+                gap: "10px",
+                width: "100%",
+                padding: "10px",
+                border: "1px solid #ccc",
+                boxSizing: "border-box",
+                marginTop: "10px",
+              }}
+            >
+              <Bugscard key={bug.id} bug={bug} />
+            </Box>
+          ))}
+        </Box>
       </Box>
     </>
   );

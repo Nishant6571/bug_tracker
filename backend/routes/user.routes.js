@@ -149,7 +149,7 @@ userRouter.get("/bugs/:id", auth, async (req, res) => {
   }
 });
 // find bug by id and update
-userRouter.patch("/bugs/:id", async (req, res) => {
+userRouter.patch("/bugs/:id", auth, async (req, res) => {
   const { id } = req.params;
 
   try {
@@ -160,7 +160,7 @@ userRouter.patch("/bugs/:id", async (req, res) => {
   }
 });
 // find bug by id and delete
-userRouter.delete("/bugs/:id", async (req, res) => {
+userRouter.delete("/bugs/:id", auth, async (req, res) => {
   const { id } = req.params;
 
   try {
